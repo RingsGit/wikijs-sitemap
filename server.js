@@ -53,6 +53,10 @@ const generateSitemapAndLog = async () => {
 
 // generate sitemap every 24 hours
 cron.schedule('0 0 * * *', generateSitemapAndLog);
+// generate sitemap every 10 seconds
+// cron.schedule('*/10 * * * * *', generateSitemapAndLog);
+// generate sitemap every 5 minutes
+// cron.schedule('0 */5 * * * *', generateSitemapAndLog);
 
 let port = process.env.PORT || 3012;
 

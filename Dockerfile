@@ -1,12 +1,14 @@
 FROM node:19-alpine
 
-LABEL maintainer = "hostwiki.com"
+LABEL maintainer = "analog-ic.com"
 
 WORKDIR /wiki/sitemap
 
+ENV NODE_ENV=production
+
 COPY package*.json ./
 
-RUN npm ci install
+RUN npm ci && npm cache clean --force
 
 COPY . .
 

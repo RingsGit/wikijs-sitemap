@@ -1,0 +1,19 @@
+version: "3"
+services:
+  wikijs-sitemap:
+    image: ring/wikijs-sitemap:dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ../:/wiki/sitemap:cached
+      - wikijs-sitemap-node_modules:/wiki/sitemap/node_modules
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+    command: sleep infinity
+    ports:
+      - "3012:3012"
+
+volumes:
+  wikijs-sitemap-node_modules:

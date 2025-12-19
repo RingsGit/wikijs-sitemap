@@ -1,0 +1,32 @@
+{
+  "name": "wikijs-sitemap (Compose)",
+  "dockerComposeFile": ["./docker-compose.yml", "./docker-compose.override.yml"],
+  "service": "wikijs-sitemap",
+  "workspaceFolder": "/wiki/sitemap",
+  "runServices": ["db","wiki", "wikijs-sitemap"],
+  "shutdownAction": "stopCompose",
+  "forwardPorts": [3012, 3000],
+  "postCreateCommand": "npm install",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "sh",
+        "terminal.integrated.profiles.linux": {
+          "sh": {
+            "path": "/bin/sh"
+          }
+        }
+      },
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  },
+  "remoteEnv": {
+	  "HTTP_PROXY": "http://host.docker.internal:10809",
+	  "HTTPS_PROXY": "http://host.docker.internal:10809",
+	  "ALL_PROXY": "socks5://host.docker.internal:10808"
+ },
+  "remoteUser": "node"
+}

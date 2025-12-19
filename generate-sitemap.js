@@ -23,12 +23,48 @@ async function generateSitemap() {
             .select('id', 'localeCode', 'path', 'title', 'isPrivate', 'isPublished', 'updatedAt')
             .where({isPrivate: false, isPublished: true});
 
+        // --- modification start: blocklist ---
+        let blockedKeywords = [];
+        const blocklistPath = path.join(__dirname, 'blocklist.txt');
+        
+        try {
+            if (fs.existsSync(blocklistPath)) {
+                const fileContent = fs.readFileSync(blocklistPath, 'utf-8');
+                blockedKeywords = fileContent.split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line.length > 0);
+                
+                if(blockedKeywords.length > 0) {
+                   console.log(`Loaded ${blockedKeywords.length} blocked keywords.`);
+                }
+            }
+        } catch (err) {
+            console.error('Error reading blocklist.txt:', err.message);
+        }
+        // --- modification end ---
+
         if (pages.length > 0) {
             let sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n' +
                 '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-                '<!-- Wiki.js sitemap generator by https://hostwiki.com -->\n';
+                '<!-- Wiki.js sitemap generator by https://analog-ic.com -->\n';
 
             pages.forEach(function (page) {
+                // --- modification start: keyword filtering ---
+                const pageTitle = (page.title || '').toLowerCase();
+                const pagePath = (page.path || '').toLowerCase();
+
+                // check if the page title or path contains any of the blocked keywords
+                const isBlocked = blockedKeywords.some(keyword => {
+                    const k = keyword.toLowerCase();
+                    return pageTitle.includes(k) || pagePath.includes(k);
+                });
+
+                if (isBlocked) {
+                    // if the page is blocked, skip adding it to the sitemap
+                    return; 
+                }
+                // --- modification end ---
+
                 const page_url = hostname + "/" + page.localeCode + "/" + page.path;
                 const last_update = page.updatedAt;
 
@@ -49,7 +85,9 @@ async function generateSitemap() {
             fs.writeFileSync(path.join(directoryPath, 'sitemap.xml'), sitemap, 'utf-8');
         }
 
-        await db.destroy();
+        // await db.destroy();
+        console.log('Database connection kept alive for next cron job.');
+
     } catch (err) {
         throw new Error('Database connection error: ' + err.message);
     }

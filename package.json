@@ -1,17 +1,22 @@
 {
   "name": "wikijs-sitemap",
-  "version": "1.0.3",
-  "description": "Sitemap for Wiki.js",
+  "version": "1.1.0",
+  "description": "Sitemap for Wiki.js with auto-refresh and keyword blocklist",
   "main": "server.js",
   "scripts": {
+    "dev": "nodemon --watch . --ext js,json --exec node server.js",
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "wikijs",
     "sitemap"
   ],
-  "author": "Philip Okugbe",
+  "author": "Philip Okugbe (Modified by Ring)",
   "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  },
   "dependencies": {
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
