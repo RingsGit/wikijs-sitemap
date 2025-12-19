@@ -1,6 +1,6 @@
-FROM node:19-alpine
+FROM node:20-alpine
 
-LABEL maintainer = "analog-ic.com"
+LABEL maintainer="analog-ic.com"
 
 WORKDIR /wiki/sitemap
 
