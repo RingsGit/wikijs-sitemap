@@ -24,18 +24,28 @@ async function generateSitemap() {
             .where({isPrivate: false, isPublished: true});
 
         // --- modification start: blocklist ---
-        let blockedKeywords = [];
+        let blockedIncludes = [];
+        let blockedEndsWith = [];
         const blocklistPath = path.join(__dirname, 'blocklist.txt');
         
         try {
             if (fs.existsSync(blocklistPath)) {
                 const fileContent = fs.readFileSync(blocklistPath, 'utf-8');
-                blockedKeywords = fileContent.split('\n')
+                const lines = fileContent.split('\n')
                     .map(line => line.trim())
                     .filter(line => line.length > 0);
                 
-                if(blockedKeywords.length > 0) {
-                   console.log(`Loaded ${blockedKeywords.length} blocked keywords.`);
+                lines.forEach(line => {
+                    const lowerLine = line.toLowerCase();
+                    if (lowerLine.startsWith('include ')) {
+                        blockedIncludes.push(lowerLine.substring(8).trim());
+                    } else if (lowerLine.startsWith('endwith ')) {
+                        blockedEndsWith.push(lowerLine.substring(8).trim());
+                    }
+                });
+                
+                if(blockedIncludes.length > 0 || blockedEndsWith.length > 0) {
+                   console.log(`Loaded ${blockedIncludes.length} include rules and ${blockedEndsWith.length} endwith rules.`);
                 }
             }
         } catch (err) {
@@ -50,14 +60,12 @@ async function generateSitemap() {
 
             pages.forEach(function (page) {
                 // --- modification start: keyword filtering ---
-                const pageTitle = (page.title || '').toLowerCase();
                 const pagePath = (page.path || '').toLowerCase();
 
-                // check if the page title or path contains any of the blocked keywords
-                const isBlocked = blockedKeywords.some(keyword => {
-                    const k = keyword.toLowerCase();
-                    return pageTitle.includes(k) || pagePath.includes(k);
-                });
+                // check if the page path matches any of the blocked rules
+                const isBlocked = 
+                    blockedIncludes.some(k => pagePath.includes(k)) ||
+                    blockedEndsWith.some(k => pagePath.endsWith(k));
 
                 if (isBlocked) {
                     // if the page is blocked, skip adding it to the sitemap
@@ -65,7 +73,7 @@ async function generateSitemap() {
                 }
                 // --- modification end ---
 
-                const page_url = hostname + "/" + page.localeCode + "/" + page.path;
+                const page_url = hostname + "/" + page.path;
                 const last_update = page.updatedAt;
 
                 sitemap += '<url>\n' +
